@@ -1,0 +1,48 @@
+plugins {
+    id 'java'
+}
+
+group 'org.devdynam0507'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    mainClassName = 'org.devdynam0507.proxy.ClientProxySidecarApp'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': "$mainClassName"
+    }
+
+    from('src/main/resources') {
+        include '**/*.*'
+    }
+
+    from {
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+dependencies {
+    implementation 'org.springframework:spring-context:6.1.6'
+    ['armeria'].each {
+        implementation "com.linecorp.armeria:${it}:1.28.0"
+    }
+
+    runtimeOnly 'ch.qos.logback:logback-classic:1.4.14'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+}
+
+test {
+    useJUnitPlatform()
+}
